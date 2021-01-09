@@ -7,7 +7,7 @@ In general, it could be also used with any music software allowing to define MID
 <a href="Images/02.jpg" target="_blank"><img src="Images/02.jpg" width="700" alt="Piano"></a>
 
 ## Hardware
-<img src="Images/05.jpg" width="250" alt="Electronic">
+<img src="Images/05.jpg" height="190" alt="Electronic"> <img src="Hardware/MIDI2Neopixel_Fritzing.jpg" height="190" alt="Electronic">
 
 See <a href="./Hardware">Hardware</a> README.md for more info.
 

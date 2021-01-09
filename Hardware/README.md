@@ -7,6 +7,10 @@ Electronic is built on **Arduino pro micro** (Atmega 32u4) which behave as MIDI 
 PCB has place for SMD 0603 components or classic THT (You can select based on your supplies).
 
 ---
+## Breadboard Example
+<a href="MIDI2Neopixel_Fritzing.jpg" target="_blank"><img src="MIDI2Neopixel_Fritzing.jpg" width="700" alt="Fritzing"></a>
+
+---
 ## Schematic
 <a href="schematic.pdf" target="_blank"><img src="schematic.png?raw=true" width="700" alt="Schematic"></a>
 
