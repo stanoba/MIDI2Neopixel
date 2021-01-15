@@ -118,7 +118,7 @@ void controlChange(byte channel, byte control, byte value) {
 //-------------------------------------------- SETUP ----------------------------------------------//
 
 void setup() {
-  if (DEBUG == true){     Serial.begin(115200); }
+  if (DEBUG == true){ Serial.begin(115200); }
   delay( 3000 ); // power-up safety delay
   FastLED.setMaxPowerInVoltsAndMilliamps(5, AMPERAGE);
   pinMode(BUTTON_PIN1, INPUT_PULLUP);
@@ -129,6 +129,7 @@ void setup() {
   fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
   SetNote(NOTE_OFFSET+ledProgram-1,0xFF0000);
   FastLED.show();
+  if (DEBUG == true){ Serial.println("MIDI2Neopixel is ready!"); }
 }
 
 //--------------------------------------------- LOOP ----------------------------------------------//
