@@ -4,7 +4,7 @@ MIDI2Neopixel is simple Piano LED Visualizer based on Arduino pro micro (Leonard
 
 In general, it could be also used with any music software allowing to define MIDI out device (e.g. NI Kontakt). 
 
-<a href="Images/02.jpg" target="_blank"><img src="Images/02.jpg" width="700" alt="Piano"></a>
+<a href="https://www.youtube.com/watch?v=qc4U0AoNLCc" target="_blank"><img src="Images/02.jpg" width="700" alt="Piano"></a>
 
 ## Hardware
 <img src="Images/05.jpg" height="190" alt="Electronic"> <img src="Hardware/MIDI2Neopixel_Fritzing.jpg" height="190" alt="Electronic">
