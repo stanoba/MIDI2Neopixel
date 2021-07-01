@@ -1,6 +1,6 @@
 # MIDI2Neopixel - Piano LED Visualizer - Hardware
 
-Electronic is built on **Arduino pro micro** (Atmega 32u4) which behave as MIDI output device. It could be powered from 5V DC adapter or directly from USB port (limited amperage) after soldering schottky diode between Arduino PWR pin and + terminal of capacitor.
+Electronic is built on **Arduino pro micro** (Atmega 32u4) which behave as MIDI output device. It could be powered from 5V DC adapter or directly from USB port (limited amperage) after soldering schottky diode between Arduino PWR pin and + terminal of capacitor. LEDs used in project are WS2812B (144 LEDs / 1 m).
 
 <a href="../Images/05.jpg" target="_blank"><img src="../Images/05.jpg" width="350" alt="Board SMD"></a> <a href="../Images/04.jpg" target="_blank"><img src="../Images/04.jpg" width="350" alt="Board THT"></a>
 
