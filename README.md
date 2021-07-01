@@ -1,6 +1,6 @@
 # MIDI2Neopixel - Piano LED Visualizer
 
-MIDI2Neopixel is simple Piano LED Visualizer based on Arduino pro micro (Leonardo). It's compatible with [Synthesia](https://www.synthesiagame.com) piano learning software. 
+MIDI2Neopixel is simple Piano LED Visualizer based on Arduino pro micro (Leonardo) and LED strip WS2812B (144 LEDs / 1 m). It's compatible with [Synthesia](https://www.synthesiagame.com) piano learning software. 
 
 In general, it could be also used with any music software allowing to define MIDI out device (e.g. NI Kontakt). 
 
