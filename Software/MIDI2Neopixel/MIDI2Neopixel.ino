@@ -15,7 +15,8 @@
 #define NOTE_OFFSET   29     // Offset of first note from left (depends on Piano)
 #define LEDS_PER_NOTE 2      // How many LED are on per key
 #define LED_INT_STEPS 8      // LED Intensity button steps
-#define DEBUG         false
+
+#define DEBUG
 
 CRGB leds[NUM_LEDS];
 byte color = 0xFFFFFF;
@@ -107,18 +108,36 @@ void noteOff(byte channel, byte pitch, byte velocity) {
     SetNote(pitch,0x000000); // black
   }
 
-  if (DEBUG == true){     Serial.println("Note OFF  - Channel:" + String(channel) + " Pitch:" + String(pitch) + " Note:" + pitch_name(pitch) + String(pitch_octave(pitch)) + " Velocity:" + String(velocity)); }
+  #ifdef DEBUG
+  Serial.print("Note OFF  - Channel:");
+  Serial.print(String(channel));
+  Serial.print(" Pitch:");
+  Serial.print(String(pitch));
+  Serial.print(" Note:");
+  Serial.print(pitch_name(pitch) + String(pitch_octave(pitch)));
+  Serial.print(" Velocity:");
+  Serial.println(String(velocity));
+  #endif
   FastLED.show();
 }
 
 void controlChange(byte channel, byte control, byte value) {
-  if (DEBUG == true){     Serial.println("Control  - Channel:" + String(channel) + " Control:" + String(control) + " Value:" + String(value)); }
+  #ifdef DEBUG
+  Serial.print("Control  - Channel:");
+  Serial.print(String(channel));
+  Serial.print(" Control:");
+  Serial.print(String(control));
+  Serial.print(" Value:");
+  Serial.println(String(value));
+  #endif
 }
 
 //-------------------------------------------- SETUP ----------------------------------------------//
 
 void setup() {
-  if (DEBUG == true){ Serial.begin(115200); }
+  #ifdef DEBUG
+  Serial.begin(115200);
+  #endif
   delay( 3000 ); // power-up safety delay
   FastLED.setMaxPowerInVoltsAndMilliamps(5, AMPERAGE);
   pinMode(BUTTON_PIN1, INPUT_PULLUP);
@@ -129,7 +148,9 @@ void setup() {
   fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
   SetNote(NOTE_OFFSET+ledProgram-1,0xFF0000);
   FastLED.show();
-  if (DEBUG == true){ Serial.println("MIDI2Neopixel is ready!"); }
+  #ifdef DEBUG
+  Serial.println("MIDI2Neopixel is ready!");
+  #endif
 }
 
 //--------------------------------------------- LOOP ----------------------------------------------//
@@ -183,7 +204,12 @@ void loop() {
         // Map ledIntensity to ledBrightness
         ledBrightness = map(ledIntensity, 1, LED_INT_STEPS, 3, 255);
         FastLED.setBrightness(ledBrightness);
-        if (DEBUG == true){     Serial.println("Button 2 pressed! Intensity is " + String(ledIntensity) + " and brightness to "+ String(ledBrightness)); }
+        #ifdef DEBUG
+        Serial.print("Button 2 pressed! Intensity is ");
+        Serial.print(String(ledIntensity));
+        Serial.print(" and brightness to ");
+        Serial.print(String(ledBrightness));
+        #endif
         // Set LED indication for program
         SetNote(NOTE_OFFSET+ledIntensity-1,0x00FF00);
         FastLED.show();
@@ -211,16 +237,17 @@ void loop() {
     break;
     
   default:
-    if (DEBUG == true){ 
-      Serial.print("Unhandled MIDI message: ");
-      Serial.print(rx.header, HEX);
-      Serial.print("-");
-      Serial.print(rx.byte1, HEX);
-      Serial.print("-");
-      Serial.print(rx.byte2, HEX);
-      Serial.print("-");
-      Serial.println(rx.byte3, HEX);
-    }
+    #ifdef DEBUG
+    Serial.print("Unhandled MIDI message: ");
+    Serial.print(rx.header, HEX);
+    Serial.print("-");
+    Serial.print(rx.byte1, HEX);
+    Serial.print("-");
+    Serial.print(rx.byte2, HEX);
+    Serial.print("-");
+    Serial.println(rx.byte3, HEX);
+    #endif
+    break;
   }
 
 
