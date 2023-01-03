@@ -2,7 +2,7 @@
 
 ## Build and upload via Arduino IDE
 
-1. Download prerequisities from https://github.com/FastLED/FastLED (version 3.3.3) and https://www.arduino.cc/en/Reference/MIDIUSB (version 1.0.4) to `Arduino/libraries` folder or via `Tools/Manage libraries` menu in IDE. 
+1. Download prerequisities from https://github.com/FastLED/FastLED (version 3.5) and https://www.arduino.cc/en/Reference/MIDIUSB (version 1.0.5) to `Arduino/libraries` folder or via `Tools/Manage libraries` menu in IDE. 
 
 2. Open source code in IDE and hit `Upload` button.
 
