@@ -1,7 +1,7 @@
-// Developed in Arduino IDE 1.8.13 (Windows)
+// Developed in Arduino IDE 1.8.19 (Windows)
 
-#include <FastLED.h> // FastLED version 3.3.3 https://github.com/FastLED/FastLED
-#include "MIDIUSB.h" // MIDIUSB version 1.0.4 https://www.arduino.cc/en/Reference/MIDIUSB
+#include <FastLED.h> // FastLED version 3.5 https://github.com/FastLED/FastLED
+#include "MIDIUSB.h" // MIDIUSB version 1.0.5 https://www.arduino.cc/en/Reference/MIDIUSB
 
 #define BUTTON_PIN1 3
 #define BUTTON_PIN2 2
@@ -9,7 +9,7 @@
 #define LED_PIN     5
 #define NUM_LEDS    144
 #define LED_TYPE    WS2812B
-#define COLOR_ORDER GRB
+#define COLOR_ORDER RGB
 #define AMPERAGE    1500     // Power supply amperage in mA
 
 #define NOTE_OFFSET   29     // Offset of first note from left (depends on Piano)
@@ -19,6 +19,7 @@
 #define DEBUG
 
 CRGB leds[NUM_LEDS];
+
 byte color = 0xFFFFFF;
 int ledProgram = 1;
 int ledIntensity = 2;  // default LED brightness
@@ -30,6 +31,10 @@ int lastButtonState2 = LOW;
 unsigned long lastDebounceTime1 = 0;
 unsigned long lastDebounceTime2 = 0;
 unsigned long debounceDelay = 50;
+unsigned long lastDebounceTime3 = 0;
+unsigned long lastDebounceTime4 = 0;
+unsigned long debounceDelay2 = 3000;
+bool button1_bool = 0;
 
 //------------------------------------------- FUNCTIONS ----------------------------------------------//
 
@@ -46,7 +51,7 @@ void SetNote(byte pitch, CRGB color) {
   int b = 0;
   for (int a = 0; a < LEDS_PER_NOTE; a++) {
     //if (int(pitch) > 66){b=1;}else{b=0;} // led stripe solder joints compensation
-    leds[(((pitch - NOTE_OFFSET)*LEDS_PER_NOTE)+ a - b)]= color;
+    leds[(((pitch - NOTE_OFFSET)*LEDS_PER_NOTE) + a - b)] = color;
   }
 }
 
@@ -54,7 +59,7 @@ void SetNote2(byte pitch, int hue) {
   int b = 0;
   for (int a = 0; a < LEDS_PER_NOTE; a++) {
     //if (int(pitch) > 66){b=1;}else{b=0;} // led stripe solder joints compensation
-    leds[(((pitch - NOTE_OFFSET)*LEDS_PER_NOTE)+a - b)].setHSV(hue, 255, 255);
+    leds[(((pitch - NOTE_OFFSET)*LEDS_PER_NOTE) + a - b)].setHSV(hue, 255, 255);
   }
 }
 
@@ -63,52 +68,56 @@ void noteOn(byte channel, byte pitch, byte velocity) {
     switch (channel) {
 
       // Left Hand
-    case 144: // Default Channel is 144
-    case 155:
-    case 145 ... 149:
-      if (ledProgram == 1){
-        SetNote(pitch,0x0000FF);
-      }else if (ledProgram == 2){
-        SetNote(pitch,0x00FF00);
-      }else if (ledProgram == 3){
-        SetNote2(pitch,pitch*velocity);
-      }else if (ledProgram == 4){
-        SetNote2(pitch,velocity*2);
-      }else if (ledProgram == 5){
-        SetNote(pitch,0xFFFFFF);
-      }else if (ledProgram == 6){
-        SetNote2(pitch,ceil((pitch-NOTE_OFFSET) * (255/(NUM_LEDS/LEDS_PER_NOTE))));
-      }else{
-      }
-      break;
-      
+      case 144: // Default Channel is 144
+      case 155:
+      case 145 ... 149:
+        if (ledProgram == 1) {
+          SetNote(pitch, 0x0000FF);
+        } else if (ledProgram == 2) {
+          SetNote(pitch, 0x00FF00);
+        } else if (ledProgram == 3) {
+          SetNote2(pitch, pitch * velocity);
+        } else if (ledProgram == 4) {
+          SetNote2(pitch, velocity * 2);
+        } else if (ledProgram == 5) {
+          SetNote(pitch, 0xFFFFFF);
+        } else if (ledProgram == 6) {
+          SetNote2(pitch, ceil((pitch - NOTE_OFFSET) * (255 / (NUM_LEDS / LEDS_PER_NOTE))));
+        } else {
+        }
+        break;
+
       // Right Hand
-    case 156:
-    case 150 ... 154:
-      SetNote(pitch,0x00FF00);
-      break;
-      
-    default:
-      SetNote(pitch,0xFFFFFF);
-      break;
+      case 156:
+      case 150 ... 154:
+        SetNote(pitch, 0x00FF00);
+        break;
+
+      default:
+        SetNote(pitch, 0xFFFFFF);
+        break;
     }
 
-    if (DEBUG == true){     Serial.println("Note ON   - Channel:" + String(channel) + " Pitch:" + String(pitch) + " Note:" + pitch_name(pitch) + String(pitch_octave(pitch)) + " Velocity:" + String(velocity)); }
-  }else{   
-    SetNote(pitch,0x000000); // black
-    if (DEBUG == true){     Serial.println("Note OFF2 - Channel:" + String(channel) + " Pitch:" + String(pitch) + " Note:" + pitch_name(pitch) + String(pitch_octave(pitch)) + " Velocity:" + String(velocity)); }
+#ifdef DEBUG
+    Serial.println("Note ON   - Channel:" + String(channel) + " Pitch:" + String(pitch) + " Note:" + pitch_name(pitch) + String(pitch_octave(pitch)) + " Velocity:" + String(velocity));
+#endif
+  } else {
+    SetNote(pitch, 0x000000); // black
+#ifdef DEBUG
+    Serial.println("Note OFF2 - Channel:" + String(channel) + " Pitch:" + String(pitch) + " Note:" + pitch_name(pitch) + String(pitch_octave(pitch)) + " Velocity:" + String(velocity));
+#endif
   }
   FastLED.show();
 }
 
 void noteOff(byte channel, byte pitch, byte velocity) {
-  if (ledProgram == 5){
+  if (ledProgram == 5) {
     fill_rainbow( leds, NUM_LEDS, 0, 5);
-  }else{
-    SetNote(pitch,0x000000); // black
+  } else {
+    SetNote(pitch, 0x000000); // black
   }
 
-  #ifdef DEBUG
+#ifdef DEBUG
   Serial.print("Note OFF  - Channel:");
   Serial.print(String(channel));
   Serial.print(" Pitch:");
@@ -117,40 +126,45 @@ void noteOff(byte channel, byte pitch, byte velocity) {
   Serial.print(pitch_name(pitch) + String(pitch_octave(pitch)));
   Serial.print(" Velocity:");
   Serial.println(String(velocity));
-  #endif
+#endif
   FastLED.show();
 }
 
 void controlChange(byte channel, byte control, byte value) {
-  #ifdef DEBUG
+#ifdef DEBUG
   Serial.print("Control  - Channel:");
   Serial.print(String(channel));
   Serial.print(" Control:");
   Serial.print(String(control));
   Serial.print(" Value:");
   Serial.println(String(value));
-  #endif
+#endif
 }
 
 //-------------------------------------------- SETUP ----------------------------------------------//
 
 void setup() {
-  #ifdef DEBUG
+#ifdef DEBUG
   Serial.begin(115200);
-  #endif
-  delay( 3000 ); // power-up safety delay
+#endif
+  delay(3000); // power-up safety delay
   FastLED.setMaxPowerInVoltsAndMilliamps(5, AMPERAGE);
   pinMode(BUTTON_PIN1, INPUT_PULLUP);
   pinMode(BUTTON_PIN2, INPUT_PULLUP);
   pinMode(LED_ACT_PIN, OUTPUT);
   FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness(ledBrightness);
-  fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
-  SetNote(NOTE_OFFSET+ledProgram-1,0xFF0000);
+  fill_solid( leds, NUM_LEDS, CRGB(0, 0, 0));
+  SetNote(NOTE_OFFSET + ledProgram - 1, 0xFF0000);
   FastLED.show();
-  #ifdef DEBUG
+#ifdef DEBUG
   Serial.println("MIDI2Neopixel is ready!");
-  #endif
+#endif
+  fill_rainbow( leds, NUM_LEDS, 0, 5);
+  FastLED.show();
+  delay(3000);
+  fill_solid( leds, NUM_LEDS, CRGB(0, 0, 0));
+  FastLED.show();
 }
 
 //--------------------------------------------- LOOP ----------------------------------------------//
@@ -170,13 +184,15 @@ void loop() {
       // only toggle the LED if the new button state is HIGH
       if (buttonState1 == LOW) {
         ledProgram++;
-        if (ledProgram>6){
+        if (ledProgram > 6) {
           ledProgram = 1;
         }
-        if (DEBUG == true){     Serial.println("Button 1 pressed! Program is " + String(ledProgram)); }
+#ifdef DEBUG
+        Serial.println("Button 1 pressed! Program is " + String(ledProgram));
+#endif
         // Set LED indication for program
-        fill_solid( leds, NUM_LEDS, CRGB(0,0,0));
-        SetNote(NOTE_OFFSET+ledProgram-1,0xFF0000);
+        fill_solid( leds, NUM_LEDS, CRGB(0, 0, 0));
+        SetNote(NOTE_OFFSET + ledProgram - 1, 0xFF0000);
         FastLED.show();
       }
     }
@@ -197,61 +213,72 @@ void loop() {
       // only toggle the LED if the new button state is HIGH
       if (buttonState2 == LOW) {
         ledIntensity++;
-        SetNote(NOTE_OFFSET+ledIntensity-2,0x000000);
-        if (ledIntensity>LED_INT_STEPS){
+        SetNote(NOTE_OFFSET + ledIntensity - 2, 0x000000);
+        if (ledIntensity > LED_INT_STEPS) {
           ledIntensity = 1;
         }
         // Map ledIntensity to ledBrightness
         ledBrightness = map(ledIntensity, 1, LED_INT_STEPS, 3, 255);
         FastLED.setBrightness(ledBrightness);
-        #ifdef DEBUG
+#ifdef DEBUG
         Serial.print("Button 2 pressed! Intensity is ");
         Serial.print(String(ledIntensity));
         Serial.print(" and brightness to ");
         Serial.print(String(ledBrightness));
-        #endif
+#endif
         // Set LED indication for program
-        SetNote(NOTE_OFFSET+ledIntensity-1,0x00FF00);
+        SetNote(NOTE_OFFSET + ledIntensity - 1, 0x00FF00);
         FastLED.show();
+        lastDebounceTime3 = millis();
+        button1_bool = 1;
       }
+    }
+    if (((millis() - lastDebounceTime3) > debounceDelay2) && button1_bool){
+      fill_solid( leds, NUM_LEDS, CRGB(0, 0, 0));
+      FastLED.show();   
+      button1_bool = 0;
     }
   }
 
   ////////////////////////////////////////// MIDI Read routine ////////////////////////////////////////
   midiEventPacket_t rx = MidiUSB.read();
-  if (rx.header) {digitalWrite(LED_ACT_PIN, HIGH);}
+  if (rx.header) {
+    digitalWrite(LED_ACT_PIN, HIGH);
+  }
   switch (rx.header) {
-  case 0:
-    break; //No pending events
-    
-  case 0x9:
-    noteOn(rx.byte1,rx.byte2,rx.byte3);
-    break;
-    
-  case 0x8:
-    noteOff(rx.byte1,rx.byte2,rx.byte3);
-    break;
-    
-  case 0xB:
-    controlChange(rx.byte1 & 0xF,rx.byte2,rx.byte3);
-    break;
-    
-  default:
-    #ifdef DEBUG
-    Serial.print("Unhandled MIDI message: ");
-    Serial.print(rx.header, HEX);
-    Serial.print("-");
-    Serial.print(rx.byte1, HEX);
-    Serial.print("-");
-    Serial.print(rx.byte2, HEX);
-    Serial.print("-");
-    Serial.println(rx.byte3, HEX);
-    #endif
-    break;
+    case 0:
+      break; //No pending events
+
+    case 0x9:
+      noteOn(rx.byte1, rx.byte2, rx.byte3);
+      break;
+
+    case 0x8:
+      noteOff(rx.byte1, rx.byte2, rx.byte3);
+      break;
+
+    case 0xB:
+      controlChange(rx.byte1 & 0xF, rx.byte2, rx.byte3);
+      break;
+
+    default:
+#ifdef DEBUG
+      Serial.print("Unhandled MIDI message: ");
+      Serial.print(rx.header, HEX);
+      Serial.print("-");
+      Serial.print(rx.byte1, HEX);
+      Serial.print("-");
+      Serial.print(rx.byte2, HEX);
+      Serial.print("-");
+      Serial.println(rx.byte3, HEX);
+#endif
+      break;
   }
 
 
-  if (rx.header) {digitalWrite(LED_ACT_PIN, LOW);}
+  if (rx.header) {
+    digitalWrite(LED_ACT_PIN, LOW);
+  }
   lastButtonState1 = reading1;
   lastButtonState2 = reading2;
 }
